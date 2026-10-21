@@ -24,9 +24,11 @@ export function Screen({
 
 export function Logo() {
   return (
-    <p className="text-[21px] leading-[31.5px] font-bold tracking-[5px] whitespace-nowrap text-ink">
-      AVIA
-    </p>
+    <Link href="/" aria-label="AVIA home">
+      <p className="text-[21px] leading-[31.5px] font-bold tracking-[5px] whitespace-nowrap text-ink">
+        AVIA
+      </p>
+    </Link>
   );
 }
 

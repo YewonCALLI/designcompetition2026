@@ -55,3 +55,24 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+/* Journey timeline: steps rise in one after another (see journey/page.tsx) */
+.step {
+  opacity: 0;
+}
+.step.step-in {
+  opacity: 1;
+  animation: step-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+@keyframes step-up {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+    filter: brightness(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: brightness(1);
+  }
+}

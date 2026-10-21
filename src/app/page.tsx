@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Avatar } from "@/components/Avatar";
 import { FigmaImg, Icon } from "@/components/FigmaImg";
 import { PrimaryButton, Screen, TopBar } from "@/components/shell";
 import { FooterNav, MoneyField } from "@/components/ui";
 import { krw, useApp, usd, type Stage } from "@/lib/store";
+import { useStepReveal } from "@/lib/useStepReveal";
 
 export default function HomePage() {
   const { stage } = useApp();
@@ -25,7 +26,7 @@ function HomeHeader() {
   const { stage, setStage } = useApp();
   return (
     <>
-      <div className="flex min-h-[98px] w-full items-end justify-between px-[20px] pt-[24px] pb-[8px]">
+      <div className="flex min-h-[15px] w-full items-end justify-between px-[20px] pt-[24px] pb-[8px]">
         <div className="flex items-end gap-[12px]">
           <Avatar variant={stage === "during" ? "during" : "before"} />
           <h1 className="h-[44px] pt-[7px] text-[34px] leading-[36.72px] font-[760] tracking-[-1.53px] whitespace-nowrap text-ink-2">
@@ -149,8 +150,11 @@ function DuringSemester() {
   const note = MONTH_NOTES[month];
   const mi = MONTHS.indexOf(month);
 
+  const root = useRef<HTMLDivElement>(null);
+  useStepReveal(root);
+
   return (
-    <div className="flex w-full flex-col">
+    <div ref={root} className="flex w-full flex-col">
       {/* Date chip */}
       <div className="relative h-[28px] w-full">
         <Icon name="20c81" className="absolute top-[8px] left-[23.9px] size-[14px]" inset="inset-[-3.57%]" />
@@ -168,7 +172,7 @@ function DuringSemester() {
       </div>
 
       {/* Current balance card */}
-      <section className="relative mx-auto mt-[8px] h-[227px] w-[350px] rounded-[17px] border border-line bg-white shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)]">
+      <section data-step="" className="step relative mx-auto mt-[8px] h-[227px] w-[350px] rounded-[17px] border border-line bg-white shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)]">
         <p className="absolute top-[29px] left-[21px] text-[11px] leading-[16.5px] text-[#737373]">
           Current Balance
         </p>
@@ -211,10 +215,10 @@ function DuringSemester() {
       </section>
 
       {/* My Spendings */}
-      <h2 className="mt-[7px] px-[22px] text-[24px] leading-[36.72px] font-[760] tracking-[-1.53px] text-ink">
+      <h2 data-step="" className="step mt-[7px] px-[22px] text-[24px] leading-[36.72px] font-[760] tracking-[-1.53px] text-ink">
         My Spendings
       </h2>
-      <div className="mx-auto mt-[9px] grid h-[38px] w-[353px] grid-cols-2 rounded-[11px] bg-[#f3f3f3] p-[3px]">
+      <div data-step="" className="step mx-auto mt-[9px] grid h-[38px] w-[353px] grid-cols-2 rounded-[11px] bg-[#f3f3f3] p-[3px]">
         {(["Monthly", "Semester"] as const).map((r) => (
           <button
             key={r}
@@ -227,23 +231,23 @@ function DuringSemester() {
           </button>
         ))}
       </div>
-      <p className="mt-[11px] px-[26px] text-[11px] leading-[16.5px] text-[#737373]">
+      <p data-step="" className="step mt-[11px] px-[26px] text-[11px] leading-[16.5px] text-[#737373]">
         Your {range === "Monthly" ? "monthly" : "semester"} spending based on category
       </p>
 
-      <section className="relative mx-auto mt-[12.5px] h-[238px] w-[350px] rounded-[17px] bg-white shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)]">
+      <section data-step="" className="step relative mx-auto mt-[12.5px] h-[238px] w-[350px] rounded-[17px] bg-white shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)]">
         <div className="absolute top-[28px] left-[11px] h-[130px] w-[128.7px]">
           <FigmaImg name="64e22" className="size-full" />
         </div>
-        <p className="absolute top-[71px] left-[75.5px] -translate-x-1/2 text-center text-[11px] leading-[19px] font-bold whitespace-nowrap text-ink">
+        <p className="absolute top-[75px] left-[75.5px] -translate-x-1/2 text-center text-[11px] leading-[19px] font-bold whitespace-nowrap text-ink">
           Total spent
         </p>
-        <p className="absolute top-[89px] left-[75.5px] -translate-x-1/2 text-center text-[11px] leading-[19px] font-bold whitespace-nowrap text-ink">
+        <p className="absolute top-[93px] left-[75.5px] -translate-x-1/2 text-center text-[11px] leading-[19px] font-bold whitespace-nowrap text-ink">
           {usd(totalSpent)}
         </p>
 
         {SPENDING.map((s, i) => (
-          <div key={s.name} className="absolute right-[15px] left-[159px] flex h-[23px] items-center" style={{ top: 23 + i * 35 }}>
+          <div key={s.name} className="absolute right-[15px] left-[159px] flex h-[23px] items-center" style={{ top: 28 + i * 35.5 }}>
             <span className="relative size-[23px] shrink-0">
               <FigmaImg name={s.dot} className="size-full" />
             </span>
@@ -269,14 +273,20 @@ function DuringSemester() {
       </section>
 
       {/* My Journey */}
-      <div className="mt-[12px] flex items-baseline justify-between px-[22px]">
+      <div data-step="" className="step mt-[12px] flex items-baseline justify-between px-[22px]">
         <h2 className="text-[24px] leading-[36.72px] font-[760] tracking-[-1.53px] text-ink">My Journey</h2>
         <Link href="/journey" className="pr-[9px] font-inter text-[11px] leading-[16.5px] text-[#737373] underline">
           Explore
         </Link>
       </div>
-      <section className="relative mx-auto mt-[11px] h-[180px] w-[350px] rounded-[17px] border border-[rgba(0,0,0,0.12)] shadow-[0px_3px_4px_0px_rgba(0,0,0,0.36)]">
+      <section data-step="" className="step relative mx-auto mt-[11px] h-[180px] w-[350px] rounded-[17px] border border-[rgba(0,0,0,0.12)] shadow-[0px_3px_4px_0px_rgba(0,0,0,0.36)]">
         <Icon name="eb41b" className="absolute top-[45px] left-[21px] h-0 w-[309.5px]" inset="inset-[-3px_-0.97%]" />
+        {/* progress fill: runs from Sep to the selected month */}
+        <div
+          aria-hidden
+          className="absolute top-[42px] left-[18px] h-[6px] rounded-full bg-[linear-gradient(90deg,#6f7cf7,#8f99fb_55%,#b5c9ff)] transition-[width] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+          style={{ width: MONTH_X[mi] - 18 }}
+        />
         {MONTHS.map((m, i) => {
           const active = m === month;
           const x = MONTH_X[i];
@@ -286,7 +296,7 @@ function DuringSemester() {
               aria-label={m}
               aria-pressed={active}
               onClick={() => setMonth(m)}
-              className="absolute top-[24px] flex w-[44px] -translate-x-1/2 flex-col items-center"
+              className="absolute top-[33px] flex w-[44px] -translate-x-1/2 flex-col items-center"
               style={{ left: x }}
             >
               <span className={`relative transition-all ${active ? "size-[26px]" : "mt-[6.7px] size-[12.6px]"}`}>
@@ -310,7 +320,7 @@ function DuringSemester() {
       </section>
 
       {/* Check next */}
-      <article className="mx-auto mt-[3px] flex h-[85.967px] w-[353px] items-center justify-between rounded-[17px] bg-peri p-[17px]">
+      <article data-step="" className="step mx-auto mt-[15px] flex h-[85.967px] w-[353px] items-center justify-between rounded-[17px] bg-peri p-[17px]">
         <div className="flex w-[160px] flex-col">
           <p className="pt-[7px] font-inter text-[8px] leading-[12px] tracking-[0.56px] text-ink-2 uppercase">
             Check next
@@ -328,8 +338,8 @@ function DuringSemester() {
       </article>
 
       {/* Upcoming bills */}
-      <p className="mt-[20px] px-[22px] font-inter text-[16px] leading-[24px] text-ink-2">Upcoming Bills</p>
-      <div className="mx-auto mt-[9px] flex w-[353px] flex-col overflow-clip rounded-[17px] border border-line bg-white px-[18px] py-[4px]">
+      <p data-step="" className="step mt-[20px] px-[22px] font-inter text-[16px] leading-[24px] text-ink-2">Upcoming Bills</p>
+      <div data-step="" className="step mx-auto mt-[9px] flex w-[353px] flex-col overflow-clip rounded-[17px] border border-line bg-white px-[18px] py-[4px]">
         <MoneyField icon="df155" label="Dining & social" value={money.dining} onChange={(v) => setMoney("dining", v)} />
         <MoneyField icon="30643" label="Shopping" value={money.shopping} onChange={(v) => setMoney("shopping", v)} />
         <MoneyField

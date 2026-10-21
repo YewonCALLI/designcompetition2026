@@ -36,7 +36,8 @@ export const DEFAULT_MONEY: Record<MoneyKey, number> = {
   reserve: 400,
 };
 
-export const KRW_PER_USD = 1390;
+/** Fixed rate snapshot from 2026-10-21 (1 USD ≈ 1,327 KRW), not live. */
+export const KRW_PER_USD = 1327;
 export const MONTHS = 4; // Sep – Dec
 
 export type PlanId = "essentials" | "balanced" | "flexible";

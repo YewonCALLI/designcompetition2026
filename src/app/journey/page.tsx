@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Icon } from "@/components/FigmaImg";
 import { Screen, TopBar } from "@/components/shell";
 import { FooterNav, Toast } from "@/components/ui";
 import { krw, usd } from "@/lib/store";
+import { useStepReveal } from "@/lib/useStepReveal";
 
 /* Figma 1491:1670 "Journey" (+ 1491:1344 variant) and the transaction-row fragments 1491:1335–1343 */
 
@@ -49,9 +50,13 @@ export default function JourneyPage() {
     return () => clearTimeout(t);
   }, [toast]);
 
+  // Steps of the timeline appear one after another as they scroll into view.
+  const timeline = useRef<HTMLDivElement>(null);
+  useStepReveal(timeline);
+
   return (
     <Screen className="overflow-x-clip">
-      <div className="relative -mt-[28px] h-[1495px] w-[393px] shrink-0">
+      <div ref={timeline} className="relative -mt-[28px] h-[1495px] w-[393px] shrink-0">
         {/* header */}
         <div className="absolute top-[40px] left-0 w-full">
           <TopBar />
@@ -115,11 +120,11 @@ export default function JourneyPage() {
         </EventCard>
 
         {/* nc-ranking illustration + saved badge */}
-        <div className="absolute top-[547px] left-[178.5px] h-[65px] w-[80px]">
+        <div data-step={3} className="step absolute top-[547px] left-[178.5px] h-[65px] w-[80px]">
           <Icon name="2c1a6" className="size-full" inset="inset-[-0.33%_-0.26%]" />
         </div>
-        <div className="absolute top-[578px] left-[247px] h-[10px] w-[61px] rounded-[5px] bg-[rgba(152,251,203,0.44)]" />
-        <p className="absolute top-[574px] left-[243px] text-[11.25px] leading-[13.953px] font-semibold whitespace-nowrap text-ink">
+        <div data-step={3} className="step absolute top-[578px] left-[247px] h-[10px] w-[61px] rounded-[5px] bg-[rgba(152,251,203,0.44)]" />
+        <p data-step={3} className="step absolute top-[574px] left-[243px] text-[11.25px] leading-[13.953px] font-semibold whitespace-nowrap text-ink">
           $320 Saved!
         </p>
 
@@ -144,7 +149,8 @@ export default function JourneyPage() {
         </EventCard>
         <button
           onClick={() => setToast("October progress shared with HyunWoo")}
-          className="absolute top-[694px] left-[131px] z-10 h-[23px] w-[161px] rounded-[8px] bg-mint text-center text-[12.558px] leading-[18.837px] font-bold text-black active:brightness-95"
+          data-step={3}
+          className="step absolute top-[694px] left-[131px] z-10 h-[23px] w-[161px] rounded-[8px] bg-mint text-center text-[12.558px] leading-[18.837px] font-bold text-black active:brightness-95"
         >
           Share
         </button>
@@ -228,9 +234,10 @@ export default function JourneyPage() {
         ).map(([id, x, y]) => (
           <button
             key={id}
+            data-step={STEP[id]}
             aria-label={`${DETAILS[id].title} details`}
             onClick={() => setOpen(id)}
-            className="absolute z-10 grid size-[20.4px] place-items-center overflow-clip rounded-[10.2px] border-[0.85px] border-[#a9b8e9] bg-white shadow-[0px_0px_0px_2.55px_rgba(248,250,252,0.85)] active:scale-90"
+            className="step absolute z-10 grid size-[20.4px] place-items-center overflow-clip rounded-[10.2px] border-[0.85px] border-[#a9b8e9] bg-white shadow-[0px_0px_0px_2.55px_rgba(248,250,252,0.85)] active:scale-90"
             style={{ left: x, top: y }}
           >
             <Icon name="b5d83" className="size-[9.35px]" />
@@ -238,7 +245,7 @@ export default function JourneyPage() {
         ))}
 
         {/* recap */}
-        <article className="absolute top-[1266.36px] left-[21px] flex h-[191.212px] w-[341px] flex-col rounded-[18.354px] bg-mint p-[20.286px]">
+        <article data-step={8} className="step absolute top-[1266.36px] left-[21px] flex h-[191.212px] w-[341px] flex-col rounded-[18.354px] bg-mint p-[20.286px]">
           <p className="font-inter text-[9.66px] leading-[13.041px] font-extrabold tracking-[0.966px] text-[#737373] uppercase">
             Unlocked
           </p>
@@ -269,6 +276,17 @@ export default function JourneyPage() {
 
 /* ───────────── helpers ───────────── */
 
+const STEP: Record<EventId, number> = {
+  plan: 0,
+  family: 1,
+  paycheck: 2,
+  checkin: 3,
+  trip: 4,
+  laptop: 5,
+  rebalance: 6,
+  wrapped: 7,
+};
+
 function EventCard({
   id,
   onOpen,
@@ -284,9 +302,10 @@ function EventCard({
     <div
       role="button"
       tabIndex={0}
+      data-step={STEP[id]}
       onClick={() => onOpen(id)}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onOpen(id)}
-      className={`absolute cursor-pointer border-solid bg-app transition-transform hover:-translate-y-px active:scale-[0.99] ${className}`}
+      className={`absolute step cursor-pointer border-solid bg-app transition-transform hover:-translate-y-px active:scale-[0.99] ${className}`}
     >
       {children}
     </div>
