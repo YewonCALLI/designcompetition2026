@@ -1,0 +1,62 @@
+{
+  "_comment": "Figma MCP asset URLs (https://www.figma.com/api/mcp/asset/<id>/<name>.svg). They expire 7 days after 2026-10-20. Run `npm run assets` to download into public/assets.",
+  "base": "https://www.figma.com/api/mcp/asset",
+  "screens": {
+    "1491:217 home-before": {
+      "id": "71b661d3-cc0b-4f04-98fc-96f8434548e0",
+      "files": ["a0110", "d3743", "ccb5c", "1ee29", "4b4f5", "94de6", "a7cfd", "63f86", "23d3e", "cb08c", "822c8", "7ed1c", "e8f4d", "5cb74", "edde3", "fe9ab"]
+    },
+    "1491:420 heres-what-we-found": {
+      "id": "7342cdff-01f9-40a1-bde0-ceaa6f087b24",
+      "files": ["8bd45", "fe9ab"]
+    },
+    "1491:328 lets-map-out": {
+      "id": "69d57fe2-5307-425b-906d-a26010892b14",
+      "files": ["8bd45", "1b56d", "31e79", "aa2e8", "cf3b0", "fe9ab"]
+    },
+    "1491:516 build-starting-point": {
+      "id": "da63821e-1699-4cac-954d-454dadf9874e",
+      "files": ["8bd45", "512d2", "92159", "d19c9", "ed1ee", "595f5", "fae60", "fb22b", "41666", "df155", "30643", "3fcff", "df61d", "55483", "fe9ab"]
+    },
+    "1491:841 review-starting-point": {
+      "id": "9c266df6-3b44-41f5-8fb5-bce4743935f2",
+      "files": ["8bd45", "4e25a", "fe9ab"]
+    },
+    "1491:1670 journey": {
+      "id": "1649adc2-c47f-4e07-891d-a89ba85e42d5",
+      "files": ["65b58", "0b1af", "2ac00", "bc8b2", "23ec3", "fcc30", "9367c", "fccef", "57fef", "38697", "64d7d", "b415e", "797dc", "b5d83", "bf086", "38844", "fe9ab", "2c1a6"]
+    },
+    "1491:1118 home-during": {
+      "id": "ed2d3c26-b66c-404b-884a-4a8be5801ef6",
+      "files": ["dd903", "a0110", "d3743", "7a0e9", "15704", "4b4f5", "94de6", "a7cfd", "63f86", "23d3e", "cb08c", "822c8", "c0bc6", "e8f4d", "eb41b", "fe9ab", "1ca5f", "4e3fb", "d7bae", "b5982", "4448a", "46ea7", "e0231", "eee92", "8ff65", "64e22", "20c81", "a8864", "46ded", "a4d22", "26be8", "de2b1", "ef4a8", "df155", "30643", "3fcff"]
+    },
+    "1491:1343 rent-icon": {
+      "id": "1c14853d-2c7d-4592-8450-701605b24610",
+      "files": ["ebda7"]
+    },
+    "1491:1344 journey-and-add-event": {
+      "id": "15004510-4065-4415-bc8a-fa0fddac323b",
+      "files": ["b1113", "0b1af", "2ac00", "04857", "23ec3", "fcc30", "9367c", "fccef", "57fef", "38697", "64d7d", "b415e", "797dc", "b5d83", "bf086", "fe9ab", "8bd45", "822c8", "3c2de", "55fcd"]
+    },
+    "1491:966 decide-your-plan": {
+      "id": "2d556f3e-71e1-4a38-bdc5-a104812498f9",
+      "files": ["fe9ab", "8bd45", "a7c86", "34784"]
+    },
+    "1491:1927 shared-family-view": {
+      "id": "4f1535cd-27d3-46f7-8230-05741dacca33",
+      "files": ["fe9ab", "8bd45", "63953", "df155"]
+    },
+    "1491:2083 accept-suggested": {
+      "id": "18485297-23ac-4610-ace6-8d5669829aa3",
+      "files": ["fe9ab", "8bd45", "63953"]
+    },
+    "1491:2440 parent-view": {
+      "id": "c23ceb2d-1ee5-4dbd-9ddf-911f26a2c85b",
+      "files": ["fe9ab", "8bd45", "63953"]
+    },
+    "1491:2269 confirm-new-plan": {
+      "id": "6a18c9e0-0d8f-4e58-ad46-7ddb215cff08",
+      "files": ["fe9ab", "8bd45", "251be"]
+    }
+  }
+}

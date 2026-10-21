@@ -1,0 +1,57 @@
+@import "@fontsource-variable/noto-sans/standard.css";
+@import "@fontsource-variable/inter";
+@import "tailwindcss";
+
+/* Design tokens from the AVIA Figma file */
+:root {
+  --background: #f8f8f8;
+  --button: #b9f7ac;
+  --periwinkle: #9ab9ff;
+  --progress-bar-grey: #d9d9d9;
+  --grey-text: #6e7680;
+  --black: #000000;
+  --white: #ffffff;
+}
+
+@theme inline {
+  --font-sans: "Noto Sans Variable", "Noto Sans", system-ui, sans-serif;
+  --font-inter: "Inter Variable", "Inter", system-ui, sans-serif;
+
+  --color-app: #fafaf8;
+  --color-frame: #dededb;
+  --color-ink: #20242a;
+  --color-ink-2: #111111;
+  --color-muted: #6e7680;
+  --color-muted-2: #6e756d;
+  --color-line: #e1e8ef;
+  --color-mint: var(--button);
+  --color-mint-soft: #e4ffde;
+  --color-mint-ink: #41633a;
+  --color-peri: var(--periwinkle);
+  --color-peri-soft: #f0f5ff;
+  --color-peri-chip: #dfe9ff;
+  --color-peri-ink: #65719f;
+  --color-track: var(--progress-bar-grey);
+}
+
+html,
+body {
+  background: var(--color-frame);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Hide number input spinners in money fields */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}

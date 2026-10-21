@@ -1,0 +1,15 @@
+{
+  "app": {
+    "[project]/src/app/family/page": [],
+    "[project]/src/app/journey/page": [],
+    "[project]/src/app/page": [],
+    "[project]/src/app/plan/build/page": [],
+    "[project]/src/app/plan/found/page": [],
+    "[project]/src/app/plan/options/page": [],
+    "[project]/src/app/plan/page": [],
+    "[project]/src/app/plan/review/page": []
+  },
+  "appUsingSizeAdjust": true,
+  "pages": {},
+  "pagesUsingSizeAdjust": false
+}

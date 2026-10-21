@@ -1,0 +1,10 @@
+{
+  "/family/page": "app/family/page.js",
+  "/journey/page": "app/journey/page.js",
+  "/page": "app/page.js",
+  "/plan/build/page": "app/plan/build/page.js",
+  "/plan/found/page": "app/plan/found/page.js",
+  "/plan/options/page": "app/plan/options/page.js",
+  "/plan/page": "app/plan/page.js",
+  "/plan/review/page": "app/plan/review/page.js"
+}
