@@ -30,10 +30,10 @@ export default function FamilyPage() {
   const badge = inSemester
     ? "Approved"
     : family.status === "agreed"
-      ? "new plan agreed"
+      ? "New Plan Agreed"
       : family.status === "suggested"
-        ? "plan shared"
-        : "draft";
+        ? "Plan Shared"
+        : "Draft";
 
   return (
     <Screen>
@@ -56,7 +56,7 @@ export default function FamilyPage() {
           <section className="flex flex-col items-center gap-[12px] rounded-[10px] bg-peri p-[12px]">
             <div className="flex w-full items-center justify-between px-[3px]">
               <p className="text-[10.04px] font-bold text-black">SHARED SEMESTER PLAN</p>
-              <span className="rounded-[10px] bg-mint px-[8px] py-[5px] text-[10px] leading-[15px] font-medium tracking-[1.1px] whitespace-nowrap text-black">
+              <span className="rounded-[10px] bg-mint px-[8px] py-[5px] text-[10px] leading-[15px] font-bold whitespace-nowrap text-black">
                 {badge}
               </span>
             </div>
@@ -191,9 +191,9 @@ function UpdateCard({
       <p className="absolute top-[35.8px] left-[53.69px] text-[10.009px] whitespace-nowrap text-[#798194]">{date}</p>
       <Link
         href="/journey"
-        className="absolute top-[14px] right-[13px] rounded-[10px] bg-mint px-[12px] py-[4px] text-[12px] leading-[15px] font-medium tracking-[1.1px] whitespace-nowrap text-black uppercase"
+        className="absolute top-[14px] right-[13px] rounded-[10px] bg-mint px-[8px] py-[5px] text-[10px] leading-[15px] font-bold whitespace-nowrap text-black"
       >
-        map view
+        Map View
       </Link>
       <Icon name="ef6a6" className="absolute top-[57.7px] right-[13.65px] left-[13.65px] h-0" inset="inset-[-0.45px_0]" />
       <div className="absolute top-[67.7px] left-[15.47px] flex flex-col">
@@ -348,7 +348,7 @@ function SeptemberThread() {
         </div>
 
         {status === "suggested" && !proposing && (
-          <div className="mt-[6px] grid grid-cols-2">
+          <div className="mt-[6px] grid grid-cols-2 gap-[3px]">
             <button
               onClick={() => setProposing(true)}
               className="h-[17px] rounded-[4px] bg-track text-center text-[9px] font-medium text-ink"
@@ -389,7 +389,7 @@ function SeptemberThread() {
         )}
         {status === "agreed" && (
           <p className="mt-[6px] h-[17px] rounded-[4px] bg-mint text-center text-[9px] leading-[17px] font-medium text-ink">
-            Change accepted
+            Change Accepted
           </p>
         )}
       </div>
