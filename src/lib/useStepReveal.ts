@@ -5,11 +5,12 @@ import { useEffect, type RefObject } from "react";
  * into view (styles in globals.css). `data-step="n"` fixes the order explicitly;
  * an empty `data-step=""` uses document order.
  */
-export function useStepReveal(ref: RefObject<HTMLElement | null>, gap = 160) {
+export function useStepReveal(ref: RefObject<HTMLElement | null>, gap = 160, key?: unknown) {
   useEffect(() => {
     const root = ref.current;
     if (!root) return;
-    const els = Array.from(root.querySelectorAll<HTMLElement>("[data-step]"));
+    // Re-run when `key` changes so steps rendered later (e.g. after a stage switch) are observed too.
+    const els = Array.from(root.querySelectorAll<HTMLElement>("[data-step]:not(.step-in)"));
     const order = new Map(els.map((el, i) => [el, el.dataset.step ? Number(el.dataset.step) : i]));
     const io = new IntersectionObserver(
       (entries) => {
@@ -29,5 +30,5 @@ export function useStepReveal(ref: RefObject<HTMLElement | null>, gap = 160) {
     );
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, [ref, gap]);
+  }, [ref, gap, key]);
 }

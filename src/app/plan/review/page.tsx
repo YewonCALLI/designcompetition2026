@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { Icon } from "@/components/FigmaImg";
 import { useState } from "react";
 import { FooterButton, Screen, StepHeader, TopBar } from "@/components/shell";
 import { CurrencyToggle, DualAmount, type CurrencyMode } from "@/components/ui";
 import { KRW_PER_USD, krw, useApp, usd } from "@/lib/store";
 
-/* Figma 1491:841 — "review your starting point" (step 4) */
+/* Figma 1501:2150 — "onboarding 4": review your starting point */
 
 export default function ReviewPage() {
   const { totals: t } = useApp();
@@ -26,19 +27,16 @@ export default function ReviewPage() {
       <div className="flex w-full flex-col gap-[40px]">
         <StepHeader
           step={4}
-          progress={199}
           title="Review your starting point"
           subtitle="Make sure the big numbers feel right"
         />
 
         <div className="flex w-full flex-col gap-[12px]">
-          <div className="mx-auto flex min-h-[58px] w-[353px] flex-col gap-[12px] rounded-[5px] bg-peri-soft px-[12px] py-[10px]">
-            <div className="flex w-full items-start justify-between">
-              <p className="text-[12px] leading-[15px] text-ink">View amounts in</p>
-              <span className="rounded-[8px] bg-mint px-[8px] py-[4px] text-[12px] leading-[15px] text-black">
-                Current rate: $1 = ₩{KRW_PER_USD.toLocaleString("en-US")}
-              </span>
-            </div>
+          <div className="mx-[24px] flex min-h-[58px] flex-col gap-[12px] rounded-[5px] bg-peri-soft px-[12px] py-[10px]">
+            <p className="w-full rounded-[8px] bg-mint px-[8px] py-[4px] text-center text-[16px] leading-[22px] font-semibold tracking-[-0.35px] whitespace-nowrap text-black">
+              Current rate: $1 = ₩{KRW_PER_USD.toLocaleString("en-US")}
+            </p>
+            <p className="text-[12px] leading-[15px] text-ink">View amounts in</p>
             <CurrencyToggle value={mode} onChange={setMode} />
           </div>
 
@@ -56,7 +54,7 @@ export default function ReviewPage() {
           </div>
         </div>
 
-        <section className="mx-auto flex w-[353px] flex-col rounded-[5px] border border-line bg-white p-[18px]">
+        <section className="mx-[24px] flex flex-col rounded-[10px] border border-line bg-white p-[18px]">
           <div className="flex w-full items-start justify-between">
             <div className="flex flex-col">
               <p className="pt-[7px] pb-[3.5px] text-[12px] leading-[13.5px] tracking-[0.9px] text-black uppercase">
@@ -68,9 +66,10 @@ export default function ReviewPage() {
             </div>
             <Link
               href="/plan/build"
-              className="flex min-h-[36px] min-w-[52px] items-center justify-center rounded-[10px] border border-peri bg-peri-soft text-[10px] leading-[15px] text-ink"
+              aria-label="Edit starting point"
+              className="flex min-h-[36px] min-w-[52px] items-center justify-center rounded-[10px] border border-peri bg-peri-soft"
             >
-              Edit
+              <Icon name="0e4da" className="size-[17px]" />
             </Link>
           </div>
 
@@ -92,7 +91,7 @@ export default function ReviewPage() {
           </div>
         </section>
 
-        <section className="mx-[20px] grid grid-cols-2 rounded-[5px] border border-peri bg-peri-soft p-[18px]">
+        <section className="mx-[24px] grid grid-cols-2 rounded-[5px] border border-peri bg-peri-soft p-[18px]">
           <div className="flex flex-col">
             <p className="text-[12px] leading-[15px] text-ink">Projected ending cash</p>
             <p className="pt-[4px] text-[18px] leading-[27px] font-bold text-ink">{show(t.ending)}</p>
@@ -101,11 +100,14 @@ export default function ReviewPage() {
             <p className="text-[12px] leading-[15px] text-ink">Protected reserve</p>
             <p className="pt-[4px] text-[18px] leading-[27px] font-bold text-ink">{show(t.reserve)}</p>
           </div>
-          <p className="col-span-2 mt-[16px] border-t border-[rgba(32,36,42,0.16)] pt-[13px] text-[12px] leading-[15px] text-ink">
-            {t.aboveReserve >= 0
-              ? `Your starting point leaves ${show(t.aboveReserve)} above your reserve.`
-              : `Your starting point dips ${show(-t.aboveReserve)} below your reserve.`}
-          </p>
+          <div className="col-span-2 mt-[16px] flex items-start justify-between border-t border-[rgba(32,36,42,0.16)] pt-[13px]">
+            {t.aboveReserve >= 0 && <Icon name="00b52" className="size-[15px]" />}
+            <p className="text-[12px] leading-[15px] whitespace-nowrap text-ink">
+              {t.aboveReserve >= 0
+                ? `Your starting point leaves ${show(t.aboveReserve)} above your reserve.`
+                : `Your starting point dips ${show(-t.aboveReserve)} below your reserve.`}
+            </p>
+          </div>
         </section>
       </div>
       <FooterButton href="/plan/options">See my 3 plans</FooterButton>

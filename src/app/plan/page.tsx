@@ -7,7 +7,7 @@ import { Icon } from "@/components/FigmaImg";
 import { PrimaryButton, Screen, StepHeader, TopBar } from "@/components/shell";
 import { useApp } from "@/lib/store";
 
-/* Figma 1491:328 — "lets map out your sem" (step 1) */
+/* Figma 1501:1629 — "onboarding 1": let’s map out your semester (step 2 of 5) */
 
 const PROMISES = [
   { title: "Read-only access", body: "AVIA cannot move money." },
@@ -25,26 +25,25 @@ export default function PlanStartPage() {
       <TopBar back="/" />
       <div className="flex w-full flex-col gap-[40px]">
         <StepHeader
-          step={1}
-          progress={56}
+          step={2}
           title="Let’s map out your semester"
           subtitle="You don’t need to know every number. Choose a starting point and we’ll guide you from there."
         />
 
-        <div className="flex w-full flex-col gap-[24px] px-[20px]">
-          <p className="text-[16px] leading-[15px] font-bold text-muted uppercase">methods</p>
+        <div className="flex w-full flex-col gap-[24px] px-[24px]">
+          <p className="text-[16px] leading-[15px] font-bold text-muted">methods</p>
 
           {/* Connect my bank */}
-          <div className="flex w-full flex-col gap-[32px] rounded-[5px] border border-peri bg-peri-soft px-[16px] py-[24px]">
+          <div className="flex w-full flex-col gap-[32px] rounded-[10px] border border-peri bg-peri-soft px-[16px] py-[24px]">
             <div className="flex w-full flex-col gap-[20px]">
               <div className="flex w-full flex-col">
                 <div className="flex w-full justify-end">
-                  <span className="rounded-[5px] bg-mint px-[8px] py-[2px] text-[12px] leading-[15px] font-medium text-black uppercase">
+                  <span className="rounded-[5px] bg-mint px-[8px] py-[2px] text-[12px] leading-[15px] font-medium text-black">
                     easiest start
                   </span>
                 </div>
                 <div className="flex items-center gap-[9px]">
-                  <Icon name="1b56d" className="h-[40.218px] w-[48px]" inset="inset-[-1.24%_-1.04%_-1.24%_0]" />
+                  <Icon name="69e70" className="h-[40.218px] w-[48px]" inset="inset-[-1.24%_-1.04%_-1.24%_0]" />
                   <p className="text-[20px] leading-[24px] font-semibold whitespace-nowrap text-black">
                     Connect My Bank
                   </p>
@@ -108,7 +107,7 @@ export default function PlanStartPage() {
           {/* Enter it myself */}
           <Link
             href="/plan/build"
-            className="flex w-full items-center gap-[20px] rounded-[5px] border border-[#e1e1e1] bg-white px-[24px] py-[12px] transition active:scale-[0.99]"
+            className="flex w-full items-center gap-[20px] rounded-[10px] border border-[#e1e1e1] bg-white px-[24px] py-[12px] transition active:scale-[0.99]"
           >
             <div className="flex flex-1 items-center gap-[9px]">
               <span className="flex rounded-[24.5px] bg-mint pt-[12px] pr-[12px] pb-[13px] pl-[13px]">

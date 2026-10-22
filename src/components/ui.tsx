@@ -4,13 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { Icon } from "./FigmaImg";
-import { krw, usd, type Message } from "@/lib/store";
+import { krw, usd } from "@/lib/store";
 
 /* ───────────── Headings ───────────── */
 
 export function PageTitle({ children }: { children: ReactNode }) {
   return (
-    <div className="flex w-full items-end px-[20px] pt-[24px] pb-[8px]">
+    <div className="flex w-full items-end px-[24px] pt-[24px] pb-[8px]">
       <h1 className="pt-[7px] text-[34px] leading-[36.72px] font-[760] tracking-[-1.53px] text-balance text-ink-2">
         {children}
       </h1>
@@ -48,6 +48,7 @@ export function KindChip({ kind }: { kind: Kind }) {
 
 export function MoneyField({
   icon,
+  iconInset = "inset-0",
   label,
   kind,
   note,
@@ -56,6 +57,8 @@ export function MoneyField({
   last,
 }: {
   icon: string;
+  /** where the glyph sits inside its 18px CategoryIcon box (literal Tailwind class) */
+  iconInset?: string;
   label: string;
   kind?: Kind;
   note?: string;
@@ -69,7 +72,7 @@ export function MoneyField({
     >
       <div className="flex items-center gap-[10px]">
         <div className="grid size-[32px] shrink-0 place-items-center rounded-full bg-peri-chip">
-          <Icon name={icon} className="size-[18px]" />
+          <Icon name={icon} className="size-[18px] overflow-clip" inset={iconInset} />
         </div>
         <div className="flex flex-col items-start">
           <p className="text-[12px] leading-[18px] whitespace-nowrap text-ink">{label}</p>
@@ -86,12 +89,12 @@ export function MoneyField({
       <label className="flex h-[38px] w-[108px] shrink-0 items-center gap-[4px] rounded-[10px] border border-line px-[10px] focus-within:border-peri">
         <span className="text-[12px] leading-[18px] text-ink">$</span>
         <input
-          type="number"
+          type="text"
           inputMode="numeric"
           aria-label={label}
-          value={value}
+          value={value.toLocaleString("en-US")}
           readOnly={!onChange}
-          onChange={(e) => onChange?.(Number(e.target.value))}
+          onChange={(e) => onChange?.(Number(e.target.value.replace(/[^0-9]/g, "")))}
           className="w-full min-w-0 bg-transparent text-right text-[13px] leading-[19.5px] font-semibold text-ink outline-none"
         />
       </label>
@@ -111,7 +114,7 @@ export function FieldGroup({
   shadow?: boolean;
 }) {
   return (
-    <section className="flex w-[353px] flex-col items-start">
+    <section className="flex w-full flex-col items-start">
       <h2 className="text-[16px] leading-[22px] font-semibold tracking-[-0.35px] whitespace-nowrap text-ink">
         {title}
       </h2>
@@ -230,67 +233,14 @@ export function Segmented<T extends string>({
   );
 }
 
-/* ───────────── Family conversation bubbles ───────────── */
-
-export function ChatBubble({ m }: { m: Message }) {
-  if (m.from === "system") {
-    return (
-      <article className="flex w-full flex-col items-center rounded-[15px] bg-mint p-[12px]">
-        <p className="pt-[8px] pb-[4px] text-center text-[8px] leading-[12px] text-muted-2">{m.label}</p>
-        <p className="pt-[5px] text-center text-[10px] leading-[15px] text-ink">{m.text}</p>
-      </article>
-    );
-  }
-  const mine = m.from === "minji";
-  return (
-    <article
-      className={`flex w-[283.5px] flex-col items-start p-[12px] ${
-        mine
-          ? "self-end rounded-[15px] rounded-br-[5px] bg-peri-soft"
-          : "self-start rounded-[15px] rounded-bl-[5px] bg-mint-soft"
-      }`}
-    >
-      <p className="pt-[8px] pb-[4px] text-[10px] leading-[13.5px] text-muted-2">{m.label}</p>
-      <p className="w-[260px] pt-[5px] text-[10px] leading-[13.5px] text-ink">{m.text}</p>
-      {m.change && (
-        <div className="mt-[9px] flex w-full items-center gap-[8px] border-t border-[rgba(32,36,42,0.12)] pt-[8px] text-[12px] leading-[15px] text-ink">
-          <span>{usd(m.change[0])}/mo</span>
-          <span className="text-[10px]">→</span>
-          <span>{usd(m.change[1])}/mo</span>
-        </div>
-      )}
-    </article>
-  );
-}
-
 /* ───────────── Bottom tab bar (footernav) ───────────── */
 
+/* Figma 1501:1224 footernav — HOME / JOURNEY / CHAT, active tab gets the mint glyph */
 const NAV = [
-  { href: "/", label: "HOME", key: "home" },
-  { href: "/journey", label: "JOURNEY", key: "journey" },
-  { href: "/family", label: "TRANSFERS", key: "transfers" },
+  { href: "/", label: "HOME", key: "home", on: "edde3", off: "40842" },
+  { href: "/journey", label: "JOURNEY", key: "journey", on: "f11de", off: "d76f7" },
+  { href: "/family", label: "CHAT", key: "chat", on: "e4b9a", off: "773c4" },
 ] as const;
-
-function NavGlyph({ k, active }: { k: (typeof NAV)[number]["key"]; active: boolean }) {
-  const stroke = active ? "border-ink-2" : "border-[#999]";
-  if (k === "home") {
-    return active ? (
-      <Icon name="edde3" className="size-[24px]" />
-    ) : (
-      <span className="block size-[24px] opacity-50 grayscale">
-        <Icon name="edde3" className="size-[24px]" />
-      </span>
-    );
-  }
-  if (k === "journey") {
-    return <span className={`block h-[17px] w-[20px] rounded-[9.22px] border-[1.25px] ${stroke}`} />;
-  }
-  return (
-    <span className="flex h-[17px] w-[20px] items-center justify-center">
-      <span className={`block h-[17px] w-[20px] rotate-45 rounded-[3px] border-[1.25px] ${stroke}`} />
-    </span>
-  );
-}
 
 export function FooterNav() {
   const path = usePathname();
@@ -302,14 +252,19 @@ export function FooterNav() {
           <Link
             key={n.key}
             href={n.href}
+            aria-current={active ? "page" : undefined}
             className="flex h-[60.381px] w-[93.25px] flex-col items-center justify-center gap-[5px]"
           >
-            <span className={`flex items-center rounded-[4px] p-[4px] ${active ? "bg-mint" : ""}`}>
-              <NavGlyph k={n.key} active={active} />
-            </span>
+            {n.key === "home" ? (
+              <span className={`flex items-center rounded-[4px] p-[4px] ${active ? "bg-mint" : ""}`}>
+                <Icon name={active ? n.on : n.off} className="size-[24px]" />
+              </span>
+            ) : (
+              <Icon name={active ? n.on : n.off} className="size-[32px]" />
+            )}
             <span
               className={`font-inter text-[8px] leading-[12px] font-extrabold tracking-[0.32px] ${
-                active ? "text-ink-2" : "text-[#999]"
+                active ? "text-black" : "text-[#999]"
               }`}
             >
               {n.label}

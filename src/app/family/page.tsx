@@ -1,486 +1,520 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import Link from "next/link";
+import { useState, type ReactNode } from "react";
+import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/FigmaImg";
-import { PrimaryButton, Screen, TopBar } from "@/components/shell";
-import {
-  ChatBubble,
-  CurrencyToggle,
-  DualAmount,
-  FooterNav,
-  PageTitle,
-  Segmented,
-  type CurrencyMode,
-} from "@/components/ui";
-import { computePlans, krw, MONTHS, useApp, usd, type FamilyStatus } from "@/lib/store";
+import { Screen, TopBar } from "@/components/shell";
+import { FooterNav } from "@/components/ui";
+import { krw, MONTHS, SUGGESTED_FLEX, useApp, usd, type ChatMessage, type ChatMonth } from "@/lib/store";
 
 /*
- * Figma: 1491:1927 shared family view · 1491:2440 parent view ·
- * 1491:2083 accept suggested · 1491:2269 confirm new plan · 1491:2395 family conversation
+ * Figma 1501:2437 "onboading 6" (plan negotiation, before the semester) and
+ * 1501:3586 "shared family view" (October laptop support, during the semester).
  */
 
-const STATUS_CHIP: Record<FamilyStatus, string> = {
-  draft: "draft",
-  pending: "shared & pending",
-  suggested: "change suggested",
-  countered: "counter sent",
-  agreed: "agreed",
-};
+const PLAN_TOTAL = 7500;
 
 export default function FamilyPage() {
-  const app = useApp();
-  const { family, totals, money, plan } = app;
-  const [view, setView] = useState<"minji" | "parent">("minji");
-  const [mode, setMode] = useState<CurrencyMode>("Both");
+  const { stage, family } = useApp();
+  const inSemester = stage !== "before";
+  const [open, setOpen] = useState<ChatMonth | null>(inSemester ? "October" : "September");
+  const toggle = (m: ChatMonth) => setOpen((o) => (o === m ? null : m));
+  // Follow the demo stage: the in-semester view opens on October.
+  const [openFor, setOpenFor] = useState(inSemester);
+  if (openFor !== inSemester) {
+    setOpenFor(inSemester);
+    setOpen(inSemester ? "October" : "September");
+  }
 
-  const planName = computePlans(totals).find((p) => p.id === plan)!.name;
-  const flexTotal = family.status === "agreed" ? family.flex * MONTHS : totals.lifestyle;
-  const rows = [
-    { label: "Essential expenses", value: totals.essentials },
-    { label: "Flexible spending", value: flexTotal },
-    { label: "Subscriptions", value: totals.subscriptions },
-    { label: "Protected reserve", value: totals.reserve },
-  ];
+  const badge = inSemester
+    ? "Approved"
+    : family.status === "agreed"
+      ? "new plan agreed"
+      : family.status === "suggested"
+        ? "plan shared"
+        : "draft";
 
   return (
     <Screen>
-      <TopBar back={true} />
-      <div className="flex w-full flex-col gap-[24px]">
-        <PageTitle>Minji’s Fall 2026 Plan</PageTitle>
+      <TopBar back="/" />
 
-        <Segmented
-          className="mx-auto h-[45px] w-[353px] rounded-[5px] bg-[#f0f1ef] p-[4px]"
-          value={view}
-          onChange={setView}
-          options={[
-            { value: "minji", label: "Minji view" },
-            { value: "parent", label: "Preview parent view" },
-          ]}
-        />
+      <div className="flex w-full flex-col">
+        <div className="px-[24px] pt-[24px] pb-[8px]">
+          <h1 className="h-[44px] pt-[7px] text-[34px] leading-[36.72px] font-[760] tracking-[-1.53px] whitespace-nowrap text-ink-2">
+            Family Space
+          </h1>
+        </div>
+        <p className="px-[24px] text-[12px] leading-[15px] text-[#697189]">
+          Your conversations, decisions, and shared progress.
+        </p>
+      </div>
 
-        <section className="mx-auto flex w-[353px] flex-col rounded-[5px]">
-          <div className="flex w-full flex-col gap-[12px]">
-            <div className="flex w-full items-center gap-[12px]">
-              <h2 className="flex-1 pt-[3px] text-[17px] leading-[25.5px] font-semibold text-ink">{planName}</h2>
-              <span className="rounded-full bg-mint px-[8px] py-[5px] text-[10px] leading-[15px] font-medium tracking-[1.1px] text-black uppercase">
-                {STATUS_CHIP[family.status]}
+      <div className="mt-[24px] flex w-full justify-center px-[24px]">
+        <div className="flex w-full flex-col gap-[24px]">
+          {/* Shared semester plan */}
+          <section className="flex flex-col items-center gap-[12px] rounded-[10px] bg-peri p-[12px]">
+            <div className="flex w-full items-center justify-between px-[3px]">
+              <p className="text-[10.04px] font-bold text-black">SHARED SEMESTER PLAN</p>
+              <span className="rounded-[10px] bg-mint px-[8px] py-[5px] text-[10px] leading-[15px] font-medium tracking-[1.1px] whitespace-nowrap text-black">
+                {badge}
               </span>
             </div>
-            <CurrencyToggle value={mode} onChange={setMode} tone="grey" />
+            <div className="flex w-full flex-col gap-px px-[3px] text-black">
+              <p className="text-[25.556px] font-bold">{usd(PLAN_TOTAL)}</p>
+              <div className="flex items-start justify-between text-[12px] leading-[15px] whitespace-nowrap">
+                <p>≈ {krw(PLAN_TOTAL)} KRW</p>
+                <Link href="/plan/review" className="text-right font-medium tracking-[1.1px]">
+                  view plan details →
+                </Link>
+              </div>
+            </div>
+          </section>
+
+          {/* Conversation history */}
+          <div className="flex flex-col gap-[12px]">
+            <div className="flex items-end justify-between whitespace-nowrap">
+              <h2 className="text-[20px] leading-[24px] font-semibold text-[#20243b]">Conversation History</h2>
+              <p className="text-right text-[12px] leading-[15px] font-medium tracking-[1.1px] text-[#9096a6]">FALL 2026</p>
+            </div>
+
+            <MonthPanel
+              month="September"
+              subtitle={inSemester ? "4 messages" : "Initial Proposed Plan"}
+              open={open === "September"}
+              onToggle={() => toggle("September")}
+            >
+              <SeptemberThread />
+            </MonthPanel>
+
+            <MonthPanel
+              month="October"
+              subtitle={inSemester ? "Monthly update & laptop support" : "Upcoming monthly check-in"}
+              open={open === "October"}
+              onToggle={() => toggle("October")}
+            >
+              {inSemester ? <OctoberThread /> : <UpcomingThread month="October" />}
+            </MonthPanel>
+
+            <MonthPanel
+              month="November"
+              subtitle="Upcoming monthly check-in"
+              open={open === "November"}
+              onToggle={() => toggle("November")}
+            >
+              <UpcomingThread month="November" />
+            </MonthPanel>
+
+            <Composer month={open ?? (inSemester ? "October" : "September")} />
           </div>
-
-          {view === "minji" && family.status === "agreed" ? (
-            <AgreedCard mode={mode} />
-          ) : (
-            <DualAmount
-              amount={money.familySupport}
-              mode={mode}
-              line="63953"
-              label={
-                <p className="text-[12px] leading-[15px] font-medium tracking-[1.1px] text-ink uppercase">
-                  proposed family support
-                </p>
-              }
-            />
-          )}
-
-          <CategoryRows rows={rows} mode={mode} withIcons={family.status === "pending" && view === "minji"} />
-          <CompareOptions mode={mode} />
-        </section>
-
-        {view === "minji" ? <MinjiConversation /> : <ParentRespond />}
+        </div>
       </div>
+
       <FooterNav />
     </Screen>
   );
 }
 
-/* ───────────── pieces ───────────── */
+/* ───────────── Month accordion ───────────── */
 
-function money(n: number, mode: CurrencyMode) {
-  if (mode === "USD") return { main: usd(n) };
-  if (mode === "KRW") return { main: krw(n) };
-  return { main: usd(n), sub: krw(n) };
-}
-
-function CategoryRows({
-  rows,
-  mode,
-  withIcons,
+function MonthPanel({
+  month,
+  subtitle,
+  open,
+  onToggle,
+  children,
 }: {
-  rows: { label: string; value: number }[];
-  mode: CurrencyMode;
-  withIcons: boolean;
+  month: ChatMonth;
+  subtitle: string;
+  open: boolean;
+  onToggle: () => void;
+  children: ReactNode;
 }) {
   return (
-    <div className="pt-[12px]">
-      <div
-        className={`flex w-full flex-col overflow-clip rounded-[5px] border ${
-          withIcons ? "border-line bg-white" : "border-muted"
+    <section
+      className={`overflow-clip rounded-[10px] transition-colors ${
+        open ? "bg-white" : "border-[0.9px] border-[#e2e6ef] bg-white"
+      }`}
+    >
+      <button
+        onClick={onToggle}
+        aria-expanded={open}
+        className={`relative flex h-[64px] w-full flex-col items-start rounded-[10px] px-[15.5px] pt-[16.4px] text-left ${
+          open ? "bg-peri-soft" : ""
         }`}
       >
-        {rows.map((r, i) => {
-          const m = money(r.value, mode);
-          const last = i === rows.length - 1;
-          return (
-            <div
-              key={r.label}
-              className={`flex h-[48px] min-h-[48px] items-center justify-between px-[12px] py-[10px] ${
-                last ? "" : withIcons ? "border-b border-track" : "border-b border-muted"
-              }`}
+        <span className="text-[12.513px] font-bold text-[#20243b]">{month}</span>
+        <span className="mt-[2px] text-[10px] text-[#747b99]">{subtitle}</span>
+        <span className={`absolute top-[29px] right-[19.2px] flex ${open ? "-scale-y-100" : ""}`}>
+          <Icon name={open ? "3c04e" : "33214"} className="h-[6.383px] w-[12.767px]" inset="inset-[-14%_-7%]" />
+        </span>
+      </button>
+      {open && <div className="pb-[18px]">{children}</div>}
+    </section>
+  );
+}
+
+/* ───────────── Shared building blocks ───────────── */
+
+function ViewFullUpdate() {
+  return (
+    <div className="flex justify-end pt-[31px] pr-[26px]">
+      <Link href="/journey" className="text-[9px] font-medium text-black underline">
+        View full update
+      </Link>
+    </div>
+  );
+}
+
+/** "October budget update" summary card (Figma 1501:3628 group). */
+function UpdateCard({
+  title,
+  date,
+  left,
+  right,
+  progress,
+  icon,
+}: {
+  title: string;
+  date: string;
+  left: { label: string; value: string; sub?: string };
+  right: { label: string; value: string };
+  /** 0–1 fill of the right-hand bar */
+  progress: number;
+  icon: string;
+}) {
+  return (
+    <div className="relative mx-[16px] mt-[6px] h-[132px] rounded-[13.6px] border-[0.9px] border-[#e1e5f3] bg-[#fafbff]">
+      <Icon name="e2689" className="absolute top-[15.8px] left-[13.65px] h-[30.938px] w-[30.028px]" />
+      <Icon name={icon} className="absolute top-[24.3px] left-[20px] h-[13.695px] w-[18.529px]" inset="inset-[-1.43%_0_0_0]" />
+      <p className="absolute top-[15.8px] left-[53.69px] text-[12.739px] font-bold whitespace-nowrap text-[#24283d]">{title}</p>
+      <p className="absolute top-[35.8px] left-[53.69px] text-[10.009px] whitespace-nowrap text-[#798194]">{date}</p>
+      <Link
+        href="/journey"
+        className="absolute top-[14px] right-[13px] rounded-[10px] bg-mint px-[12px] py-[4px] text-[12px] leading-[15px] font-medium tracking-[1.1px] whitespace-nowrap text-black uppercase"
+      >
+        map view
+      </Link>
+      <Icon name="ef6a6" className="absolute top-[57.7px] right-[13.65px] left-[13.65px] h-0" inset="inset-[-0.45px_0]" />
+      <div className="absolute top-[67.7px] left-[15.47px] flex flex-col">
+        <p className="text-[10.009px] whitespace-nowrap text-[#7e8596]">{left.label}</p>
+        <p className="mt-[2.7px] text-[12px] font-bold whitespace-nowrap text-[#24283d]">{left.value}</p>
+        {left.sub && <p className="mt-[4px] text-[9.75px] font-bold whitespace-nowrap text-[#929292]">{left.sub}</p>}
+      </div>
+      <div className="absolute top-[67.7px] left-[156.51px] flex flex-col">
+        <p className="text-[10.009px] whitespace-nowrap text-[#7e8596]">{right.label}</p>
+        <p className="mt-[2.7px] text-[12px] font-bold whitespace-nowrap text-[#24283d]">{right.value}</p>
+      </div>
+      <div className="absolute top-[108.4px] left-[156.51px] h-[6.373px] w-[149.231px] overflow-hidden rounded-full">
+        <Icon name="903be" className="absolute inset-0" />
+        <div className="absolute inset-y-0 left-0 overflow-hidden transition-[width] duration-700" style={{ width: `${progress * 100}%` }}>
+          <Icon name="691f2" className="h-[6.373px] w-[149.231px]" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Sender({ who, time, className = "mt-[37px]" }: { who: "minji" | "mom"; time: string; className?: string }) {
+  return (
+    <div className={`flex items-center pl-[21px] ${className}`}>
+      <Avatar who={who === "mom" ? "mom" : "minjiChat"} />
+      <p className="ml-[6.5px] text-[10.919px] font-bold text-black">{who === "mom" ? "Mom" : "Minji"}</p>
+      <p className="ml-[6.5px] text-[10.009px] text-[#8a8f9e]">{time}</p>
+    </div>
+  );
+}
+
+function Bubble({ who, children }: { who: "minji" | "mom"; children: ReactNode }) {
+  return (
+    <div
+      className={`ml-[53px] flex min-h-[62px] w-[266px] items-center rounded-[10px] px-[13px] py-[10px] text-[11px] leading-[1.0005] text-[#24283c] ${
+        who === "mom" ? "bg-peri-soft" : "bg-mint-soft"
+      }`}
+    >
+      <p className="w-[213px]">{children}</p>
+    </div>
+  );
+}
+
+function ExtraMessages({ messages }: { messages: ChatMessage[] }) {
+  return messages.map((m, i) => (
+    <div key={i}>
+      <Sender who={m.from} time={m.time} className="mt-[16px]" />
+      <div className="mt-[4px]">
+        <Bubble who={m.from}>{m.text}</Bubble>
+      </div>
+    </div>
+  ));
+}
+
+function Row({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className={`text-[10.009px] ${bold ? "font-bold text-[#24283d]" : "text-[#757c90]"}`}>{label}</span>
+      <span className="text-right text-[11.829px] font-bold text-[#24283d]">{value}</span>
+    </div>
+  );
+}
+
+function FundingReceived({ detail }: { detail: string }) {
+  return (
+    <div className="relative mx-[16px] mt-[16px] flex h-[51.9px] items-center rounded-[11px] border-[0.9px] border-[#d9d9d9] bg-[rgba(185,247,172,0.61)] pl-[9px]">
+      <span className="relative grid size-[24px] shrink-0 place-items-center rounded-[4.516px] border-[0.903px] border-black">
+        <Icon name="95c84" className="size-[11px]" inset="inset-[-9.09%]" />
+      </span>
+      <div className="ml-[6px] flex flex-col gap-[5px] font-inter text-black">
+        <p className="text-[10.919px] leading-[13px] font-bold">Funding received</p>
+        <p className="text-[10.009px] leading-[12px]">{detail}</p>
+      </div>
+    </div>
+  );
+}
+
+/* ───────────── September: proposed plan → adjustment → agreement (1501:2437) ───────────── */
+
+function SeptemberThread() {
+  const { stage, family, money, totals, acceptChange, proposeFlex, agreedSupport } = useApp();
+  const [proposing, setProposing] = useState(false);
+  const [counter, setCounter] = useState(190);
+  const status = stage === "before" ? family.status : "agreed";
+
+  if (status === "draft") {
+    return (
+      <div className="flex flex-col items-center gap-[12px] px-[24px] pt-[28px] text-center">
+        <p className="text-[12px] leading-[15px] text-[#697189]">
+          No plan shared yet. Choose a plan and send it to your family to start the conversation.
+        </p>
+        <Link href="/plan/options" className="rounded-[10px] bg-mint px-[16px] py-[8px] text-[12px] font-bold text-black">
+          Choose a plan
+        </Link>
+      </div>
+    );
+  }
+
+  // Jumping straight into the semester (demo control) shows the agreed story from the design.
+  const story = stage !== "before" && family.status === "draft";
+  const newFlex = story ? Math.min(family.originalFlex, SUGGESTED_FLEX) : family.flex;
+  const support = story ? money.familySupport - (family.originalFlex - newFlex) * MONTHS : agreedSupport;
+  const flexDiff = family.originalFlex - newFlex;
+  return (
+    <>
+      <ViewFullUpdate />
+      <UpdateCard
+        title="Fall 2026 plan proposal"
+        date="Shared Aug 12, 2026"
+        icon="c1369"
+        left={{ label: "Semester spending", value: usd(totals.spending), sub: `≈ ${krw(totals.spending)} KRW` }}
+        right={{ label: "NYC trip savings", value: "$0 saved of $700" }}
+        progress={0.02}
+      />
+
+      <Sender who="minji" time="Aug 12 · 10:24 AM" />
+      <Bubble who="minji">Here is my proposed budget for the new semester.</Bubble>
+
+      <Sender who="mom" time="Aug 13 · 8:03 AM" className="mt-[16px] pl-[16px]" />
+      <div className="mt-[1px]">
+        <div className="ml-[48px] flex min-h-[62px] w-[266px] items-center rounded-[10px] bg-peri-soft px-[7px]">
+          <p className="w-[248px] text-[12px] leading-[15px] text-ink">
+            We can support the semester. Could you try a slightly lower flexible budget?
+          </p>
+        </div>
+      </div>
+
+      {/* Adjustment proposed */}
+      <div className="relative mt-[20px] ml-[50px] w-[266px] rounded-[11px] border-[0.9px] border-[#d7ddf4] bg-white px-[14px] pt-[12.75px] pb-[11px]">
+        <div className="flex items-start gap-[9px]">
+          <span className="relative size-[27.3px] shrink-0">
+            <Icon name="55a6a" className="absolute inset-0" />
+            <Icon name="2a09e" className="absolute top-[5.4px] left-[8px] h-[16px] w-[12px]" inset="inset-[-3.12%_-4.17%]" />
+          </span>
+          <div className="flex flex-col">
+            <p className="text-[11.829px] font-bold whitespace-nowrap text-[#25283d]">Adjustment proposed</p>
+            <p className="text-[10.009px] whitespace-nowrap text-[#7a8095]">Less Flexible Spending</p>
+          </div>
+        </div>
+        <div className="mt-[6px] border-t-[0.9px] border-[#e1e5f3] pt-[8px]">
+          <div className="flex flex-col gap-[7px]">
+            <Row label="Original Plan" value={usd(family.originalFlex)} />
+            <Row label="New Plan" value={usd(newFlex)} />
+          </div>
+        </div>
+        <div className="mt-[8px] flex items-start justify-between border-t-[0.9px] border-[#e1e5f3] pt-[10px]">
+          <span className="pt-[4px] text-[10.009px] font-bold text-[#24283d]">Updated family support</span>
+          <div className="flex flex-col items-end">
+            <span className="text-[15.469px] font-bold text-[#504dab]">{usd(support)}</span>
+            <span className="text-[9.099px] text-[#798095]">≈ {krw(support)}</span>
+          </div>
+        </div>
+
+        {status === "suggested" && !proposing && (
+          <div className="mt-[6px] grid grid-cols-2">
+            <button
+              onClick={() => setProposing(true)}
+              className="h-[17px] rounded-[4px] bg-track text-center text-[9px] font-medium text-ink"
             >
-              {withIcons ? (
-                <div className="flex items-center gap-[12px]">
-                  <span className="grid size-[32px] place-items-center rounded-[16px] bg-peri-chip">
-                    <Icon name="df155" className="size-[18px]" />
-                  </span>
-                  <span className="text-[12px] leading-[15px] text-black">{r.label}</span>
-                </div>
-              ) : (
-                <span className="font-inter text-[10px] leading-[15px] text-black">{r.label}</span>
-              )}
-              <div className="flex flex-col items-end gap-px">
-                <span
-                  className={
-                    withIcons
-                      ? "text-right text-[12px] leading-[15px] text-black"
-                      : "text-right font-inter text-[10px] leading-[10.8px] text-black"
-                  }
-                >
-                  {m.main}
-                </span>
-                {m.sub && (
-                  <span
-                    className={
-                      withIcons
-                        ? "text-right text-[10px] leading-[13.5px] text-black opacity-72"
-                        : "text-right font-inter text-[7.2px] leading-[7.776px] text-black opacity-72"
-                    }
-                  >
-                    {m.sub}
-                  </span>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function CompareOptions({ mode }: { mode: CurrencyMode }) {
-  const { totals, plan, money: m } = useApp();
-  const plans = computePlans(totals);
-  return (
-    <div className="pt-[12px]">
-      <div className="flex w-full flex-col rounded-[16px] bg-[#f8f8f6]">
-        <p className="text-[12px] leading-[15px] font-medium tracking-[1.1px] text-black uppercase">
-          compare options
-        </p>
-        <div className="flex flex-col gap-[6px] pt-[8px]">
-          {plans.map((p) => {
-            const amt = money(m.familySupport, mode);
-            return (
-              <div
-                key={p.id}
-                className={`flex h-[39px] min-h-[39px] items-center justify-between rounded-[5px] px-[9px] py-[7px] ${
-                  p.id === plan ? "border border-peri bg-peri-soft" : "bg-[#f0f1ef]"
-                }`}
-              >
-                <span className="font-inter text-[9px] leading-[13.5px] text-black">{p.name}</span>
-                <span className="flex flex-col items-end gap-px font-inter font-bold text-black">
-                  <span className="text-[9px] leading-[9.72px]">{amt.main}</span>
-                  {amt.sub && <span className="text-[6.48px] leading-[7px] opacity-72">{amt.sub}</span>}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function AgreedCard({ mode }: { mode: CurrencyMode }) {
-  const router = useRouter();
-  const { agreedSupport, confirmPlan, stage } = useApp();
-  return (
-    <div className="pt-[12px]">
-      <div className="flex w-full flex-col gap-[10px] rounded-[20px] border border-[#79da68] bg-mint px-[21px] py-[13px]">
-        <DualAmount
-          amount={agreedSupport}
-          mode={mode}
-          line="251be"
-          label={
-            <p className="text-[12px] leading-[15px] font-medium tracking-[1.1px] text-ink uppercase">
-              new plan agreed
-            </p>
-          }
-        />
-        <button
-          onClick={() => {
-            confirmPlan();
-            router.push("/");
-          }}
-          className="flex min-h-[48px] items-center justify-center rounded-[13px] bg-ink px-[24px] py-[14px] text-[12px] leading-[18px] text-white transition active:scale-[0.98]"
-        >
-          {stage === "during" ? "Back to Home" : "Confirm Semester Plan"}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function Card({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="mx-auto w-[353px] pt-[12px]">
-      <div className="flex w-full flex-col rounded-[5px] border border-line bg-white p-[18px]">
-        <h2 className="pt-[3px] text-[17px] leading-[25.5px] font-semibold text-ink">{title}</h2>
-        <div className="pt-[14px]">{children}</div>
-      </div>
-    </div>
-  );
-}
-
-function Stepper({ value, onChange }: { value: number; onChange: (v: number) => void }) {
-  return (
-    <div className="grid grid-cols-[44px_1fr_44px] items-center gap-[8px]">
-      <button
-        aria-label="Decrease"
-        onClick={() => onChange(Math.max(0, value - 10))}
-        className="flex h-[42px] items-center justify-center rounded-[5px] bg-peri-soft text-[20px] leading-[30px] text-ink active:bg-peri"
-      >
-        −
-      </button>
-      <p className="text-center text-ink">
-        <span className="text-[25px] leading-[22px] font-semibold tracking-[-0.35px]">{usd(value)}</span>
-        <span className="text-[10px] leading-[13.5px]">/mo</span>
-      </p>
-      <button
-        aria-label="Increase"
-        onClick={() => onChange(value + 10)}
-        className="flex h-[42px] items-center justify-center rounded-[5px] bg-peri-soft text-[20px] leading-[30px] text-ink active:bg-peri"
-      >
-        +
-      </button>
-    </div>
-  );
-}
-
-function OutlineBtn({ children, onClick }: { children: React.ReactNode; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="flex w-[135px] items-center justify-center rounded-[5px] border border-line bg-white px-[24px] py-[12px] text-center text-[10px] leading-[13.5px] text-ink active:bg-[#f3f3f3]"
-    >
-      {children}
-    </button>
-  );
-}
-
-function MintBtn({ children, onClick }: { children: React.ReactNode; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="flex w-[135px] items-center justify-center self-stretch rounded-[5px] border border-mint bg-mint px-[24px] py-[12px] text-center text-[10px] leading-[13.5px] text-black active:brightness-95"
-    >
-      {children}
-    </button>
-  );
-}
-
-/* Minji's side of the conversation */
-function MinjiConversation() {
-  const { family, totals, money: m, shareWithParents, minjiAccept, minjiCounter } = useApp();
-  const [countering, setCountering] = useState(false);
-  const [counter, setCounter] = useState(180);
-  const [note, setNote] = useState(
-    "Could we meet at $180 a month? I can keep shopping lower and review it again in October.",
-  );
-
-  if (family.status === "draft") {
-    return (
-      <Card title="Family Conversation">
-        <p className="pb-[14px] text-[12px] leading-[15px] text-muted">
-          Share this plan with HyunWoo to start the conversation. They’ll see every amount in USD and KRW.
-        </p>
-        <PrimaryButton onClick={shareWithParents} className="w-full">
-          Share with parents
-        </PrimaryButton>
-      </Card>
-    );
-  }
-
-  const last = family.messages[family.messages.length - 1];
-  const suggestedSupport = m.familySupport - (totals.flexibleMonthly - family.flex) * MONTHS;
-
-  return (
-    <Card title="Family Conversation">
-      <div className="flex w-full flex-col gap-[8px]">
-        {family.messages.map((msg, i) => (
-          <ChatBubble key={i} m={msg} />
-        ))}
-        {family.status === "pending" && (
-          <ChatBubble m={{ from: "parent", label: "HyunWoo · received", text: "Reviewing..." }} />
-        )}
-        {family.status === "countered" && (
-          <p className="pt-[4px] text-center text-[10px] leading-[13.5px] text-muted">
-            Waiting for HyunWoo — try “Preview parent view” to respond.
-          </p>
-        )}
-      </div>
-
-      {family.status === "suggested" && last?.change && (
-        <div className="mt-[14px] flex w-full flex-col rounded-[5px] border border-line bg-[#f9faf7] p-[15px]">
-          <h3 className="text-[16px] leading-[22px] font-semibold tracking-[-0.35px] text-ink">
-            Your parents suggested a change
-          </h3>
-          <div className="mt-[12px] grid h-[78px] grid-cols-2 overflow-clip rounded-[5px] border border-line">
-            <div className="flex flex-col bg-white p-[12px]">
-              <p className="text-[10px] leading-[13.5px] text-muted-2">Your flexible budget</p>
-              <p className="pt-[10px] text-[20px] leading-[24px] font-semibold text-ink">{usd(last.change[0])}/mo</p>
-            </div>
-            <div className="flex flex-col border-l border-line bg-mint-soft p-[12px]">
-              <p className="text-[10px] leading-[13.5px] text-muted-2">Suggested budget</p>
-              <p className="pt-[10px] text-[20px] leading-[24px] font-semibold text-ink">{usd(last.change[1])}/mo</p>
-            </div>
+              Propose Another
+            </button>
+            <button onClick={acceptChange} className="h-[17px] rounded-[4px] bg-mint text-center text-[9px] font-medium text-ink">
+              Accept Change
+            </button>
           </div>
-          <div className="mt-[10px] flex flex-col rounded-[5px] border border-line bg-white px-[12px] py-[4px]">
-            {[
-              ["Semester spending change", usd((last.change[1] - last.change[0]) * MONTHS)],
-              ["Updated family support", usd(suggestedSupport)],
-              ["Reserve target", usd(totals.reserve)],
-            ].map(([k, v], i) => (
-              <div
-                key={k}
-                className={`flex h-[43px] items-center justify-between ${i < 2 ? "border-b border-line" : ""}`}
-              >
-                <span className="text-[10px] leading-[13.5px] text-muted-2">{k}</span>
-                <span className="text-[10px] leading-[13.5px] text-ink">{v}</span>
-              </div>
-            ))}
-          </div>
-
-          {countering ? (
-            <div className="mt-[12px] flex flex-col gap-[10px]">
-              <p className="text-[12px] leading-[15px] font-medium tracking-[1.1px] text-muted-2 uppercase">
-                your counterproposal
-              </p>
-              <Stepper value={counter} onChange={setCounter} />
-              <textarea
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                className="min-h-[72px] w-full resize-none rounded-[5px] border border-line bg-white p-[11px] text-[12px] leading-[15px] text-ink outline-none focus:border-peri"
+        )}
+        {status === "suggested" && proposing && (
+          <form
+            className="mt-[6px] flex items-center gap-[6px]"
+            onSubmit={(e) => {
+              e.preventDefault();
+              proposeFlex(Math.max(0, Math.min(counter, family.originalFlex)));
+              setProposing(false);
+            }}
+          >
+            <label className="flex h-[22px] flex-1 items-center gap-[2px] rounded-[4px] border border-line px-[6px] text-[10px]">
+              <span className="text-muted">$</span>
+              <input
+                type="number"
+                inputMode="numeric"
+                autoFocus
+                aria-label="Your flexible budget per month"
+                value={counter}
+                onChange={(e) => setCounter(Number(e.target.value))}
+                className="w-full min-w-0 bg-transparent font-bold outline-none"
               />
-              <div className="flex justify-between">
-                <OutlineBtn onClick={() => setCountering(false)}>Cancel</OutlineBtn>
-                <MintBtn
-                  onClick={() => {
-                    minjiCounter(counter, note);
-                    setCountering(false);
-                  }}
-                >
-                  Send to parents
-                </MintBtn>
-              </div>
-            </div>
-          ) : (
-            <div className="flex justify-between pt-[12px]">
-              <OutlineBtn onClick={() => setCountering(true)}>Propose Another</OutlineBtn>
-              <MintBtn onClick={minjiAccept}>Approve Change</MintBtn>
-            </div>
-          )}
-        </div>
-      )}
-    </Card>
-  );
-}
-
-/* HyunWoo's side (Figma 1491:2440) */
-function ParentRespond() {
-  const { family, totals, money: m, parentSuggest, parentApprove } = useApp();
-  const [flex, setFlex] = useState(Math.max(0, family.flex - 80));
-  const [comment, setComment] = useState(
-    "We can support the semester. Could you try a slightly lower flexible budget and review again in October?",
-  );
-  const support = m.familySupport - (totals.flexibleMonthly - flex) * MONTHS;
-  const minjiMsgs = family.messages.filter((x) => x.from === "minji");
-  const latest = minjiMsgs[minjiMsgs.length - 1];
-
-  if (family.status === "draft") {
-    return (
-      <Card title="Respond to Minji">
-        <p className="text-[12px] leading-[15px] text-muted">Minji hasn’t shared a plan yet.</p>
-      </Card>
-    );
-  }
-
-  if (family.status === "agreed" || family.status === "suggested") {
-    return (
-      <Card title={family.status === "agreed" ? "Plan approved" : "Respond to Minji"}>
-        <div className="flex flex-col gap-[8px]">
-          {family.messages.map((msg, i) => (
-            <ChatBubble key={i} m={msg} />
-          ))}
-        </div>
-        {family.status === "suggested" && (
-          <p className="pt-[12px] text-center text-[10px] leading-[13.5px] text-muted">
-            Suggestion sent. Switch to “Minji view” to see her side.
-          </p>
-        )}
-      </Card>
-    );
-  }
-
-  // pending → parent proposes or approves; countered → parent approves Minji's counter
-  return (
-    <Card title="Respond to Minji">
-      {latest && (
-        <div className="flex flex-col">
-          <ChatBubble m={latest} />
-        </div>
-      )}
-      <div className="mt-[14px] flex w-full flex-col rounded-[5px] border border-line bg-[#f9faf7] p-[15px]">
-        {family.status === "countered" ? (
-          <div className="flex items-center justify-between rounded-[5px] bg-peri p-[12px]">
-            <span className="text-[10px] leading-[13.5px] text-ink">Minji’s counter · family support</span>
-            <span className="text-[12px] leading-[15px] font-bold text-ink">
-              {usd(m.familySupport - (totals.flexibleMonthly - family.flex) * MONTHS)}
-            </span>
-          </div>
-        ) : (
-          <>
-            <p className="text-[12px] leading-[15px] font-medium tracking-[1.1px] text-muted-2 uppercase">
-              suggested monthly flexible spending
-            </p>
-            <div className="pt-[7px]">
-              <Stepper value={flex} onChange={setFlex} />
-            </div>
-            <div className="mt-[13px] flex items-center justify-between rounded-[5px] bg-peri p-[12px]">
-              <span className="text-[10px] leading-[13.5px] text-ink">Suggested family support</span>
-              <span className="text-[12px] leading-[15px] font-bold text-ink">{usd(support)}</span>
-            </div>
-            <label className="flex w-[283px] flex-col pt-[13px]">
-              <span className="pb-[7px] text-[10px] leading-[13.5px] text-muted">Comment to Minji</span>
-              <textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                className="min-h-[84px] w-full resize-none rounded-[5px] border border-line bg-white p-[11px] text-[12px] leading-[15px] text-ink outline-none focus:border-peri"
-              />
+              <span className="text-muted">/mo</span>
             </label>
-          </>
+            <button type="submit" className="h-[22px] rounded-[4px] bg-mint px-[10px] text-[9px] font-medium text-ink">
+              Send
+            </button>
+          </form>
         )}
-        <div className="flex justify-between pt-[12px]">
-          {family.status === "pending" ? (
-            <OutlineBtn onClick={() => parentSuggest(flex, comment)}>Suggest change</OutlineBtn>
-          ) : (
-            <span />
-          )}
-          <MintBtn onClick={parentApprove}>Approve plan</MintBtn>
-        </div>
+        {status === "agreed" && (
+          <p className="mt-[6px] h-[17px] rounded-[4px] bg-mint text-center text-[9px] leading-[17px] font-medium text-ink">
+            Change accepted
+          </p>
+        )}
       </div>
-    </Card>
+
+      <ExtraMessages messages={family.extra.September} />
+
+      {status === "agreed" && (
+        <FundingReceived detail={`Aug. 14 · Budget adjusted · ${flexDiff > 0 ? "−" : "+"}${usd(Math.abs(flexDiff))}`} />
+      )}
+    </>
+  );
+}
+
+/* ───────────── October: monthly update + laptop support request (1501:3586) ───────────── */
+
+function OctoberThread() {
+  const { family } = useApp();
+  return (
+    <>
+      <ViewFullUpdate />
+      <UpdateCard
+        title="October budget update"
+        date="Shared Oct 15, 2026"
+        icon="e5697"
+        left={{ label: "Remaining budget", value: "$780" }}
+        right={{ label: "NYC trip savings", value: "$400 saved of $700" }}
+        progress={400 / 700}
+      />
+
+      <Sender who="minji" time="Oct 20 · 10:24 AM" />
+      <Bubble who="minji">My laptop broke, so I need to update my budget. I shared the details below.</Bubble>
+
+      {/* Support request */}
+      <div className="mt-[13px] ml-[53px] w-[266px] rounded-[11px] border-[0.9px] border-[#d7ddf4] bg-white px-[14px] pt-[12.7px] pb-[13px]">
+        <div className="flex items-start gap-[9px]">
+          <span className="relative size-[27.3px] shrink-0">
+            <Icon name="565fa" className="absolute inset-0" />
+            <Icon name="30f3c" className="absolute top-[5.4px] left-[8px] h-[16px] w-[12px]" inset="inset-[-3.12%_-4.17%]" />
+          </span>
+          <div className="flex flex-col">
+            <p className="text-[11.829px] font-bold whitespace-nowrap text-[#25283d]">Support request</p>
+            <p className="text-[10.009px] whitespace-nowrap text-[#7a8095]">Laptop replacement</p>
+          </div>
+        </div>
+        <div className="mt-[5px] flex flex-col gap-[7px] border-t-[0.9px] border-[#e1e5f3] pt-[9px] pr-[1px]">
+          <Row label="Estimated cost" value="$950" />
+          <Row label="Emergency fund" value="$600" />
+        </div>
+        <div className="mt-[8px] flex items-start justify-between border-t-[0.9px] border-[#e1e5f3] pt-[8px]">
+          <span className="pt-[6px] text-[10.009px] font-bold text-[#24283d]">Extra support requested</span>
+          <div className="flex flex-col items-end">
+            <span className="text-[15.469px] font-bold text-[#504dab]">$350</span>
+            <span className="text-[9.099px] text-[#798095]">≈ {krw(350)}</span>
+          </div>
+        </div>
+        <p className="mt-[3px] h-[17px] rounded-[4px] bg-mint text-center text-[9px] leading-[17px] font-medium text-ink">
+          Approved by family
+        </p>
+      </div>
+
+      <Sender who="mom" time="Oct 21 · 8:03 AM" className="mt-[11px]" />
+      <Bubble who="mom">
+        Of course! We approved $350.
+        <br />
+        Let us know when you receive it.
+      </Bubble>
+
+      <ExtraMessages messages={family.extra.October} />
+
+      <FundingReceived detail="Oct 22 · Journey updated · +$350" />
+    </>
+  );
+}
+
+function UpcomingThread({ month }: { month: ChatMonth }) {
+  const { family } = useApp();
+  return (
+    <>
+      <p className="px-[16px] pt-[16px] text-[11px] leading-[15px] text-[#838a9b]">
+        Your {month} check-in opens on {month === "October" ? "Oct 1" : "Nov 1"}. Share your map with your family when it does.
+      </p>
+      <ExtraMessages messages={family.extra[month]} />
+    </>
+  );
+}
+
+/* ───────────── Message composer (1501:3730) ───────────── */
+
+function Composer({ month }: { month: ChatMonth }) {
+  const { sendMessage } = useApp();
+  const [text, setText] = useState("");
+  const send = () => {
+    const t = text.trim();
+    if (!t) return;
+    sendMessage(month, t);
+    setText("");
+  };
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        send();
+      }}
+      className="relative flex h-[46.933px] w-full items-center rounded-full border-[0.9px] border-[#e7eaf1] bg-[#f5f6fa]"
+    >
+      <span className="absolute top-[10.4px] left-[12.2px] grid size-[25.272px] place-items-center" aria-hidden>
+        <Icon name="8ae3a" className="absolute inset-0" />
+        <Icon name="c8633" className="size-[10.831px]" inset="inset-[-4.17%]" />
+      </span>
+      <input
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Message your family..."
+        aria-label={`Message your family about ${month}`}
+        className="h-full w-full rounded-full bg-transparent pr-[50px] pl-[48.3px] text-[11.733px] text-ink outline-none placeholder:text-[#9a9fb0]"
+      />
+      <button
+        type="submit"
+        aria-label="Send"
+        className="absolute top-[8.6px] right-[13.1px] size-[28.882px] transition active:scale-90"
+      >
+        <Icon name="19653" className="absolute inset-0" />
+        <Icon name="98845" className="absolute top-[9.9px] left-[3.6px] h-[10.831px] w-[19.856px]" inset="inset-[-4.17%_-2.27%]" />
+        <Icon name="ff8ec" className="absolute top-[11.3px] left-[8.4px] h-[5.88px] w-[13.317px]" inset="inset-[-7.68%_-3.39%]" />
+      </button>
+    </form>
   );
 }

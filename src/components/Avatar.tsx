@@ -1,65 +1,101 @@
+import type { CSSProperties } from "react";
 import { FigmaImg } from "./FigmaImg";
 
-/* Minji's avatar — layered Figma vectors, each clipped by the round "Body" mask. */
+/*
+ * "Cute Avatar" instances from Figma: layered vectors, each clipped by the round "Body" mask.
+ * Every export of the avatar comes with its own asset set, so each person/size is a table here.
+ */
 
-const base =
-  "absolute mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-size-[35.883px_35.882px]";
-const mask = { maskImage: 'url("/assets/a0110.svg")' } as const;
+type Layer = {
+  img: string;
+  /** position of the layer inside the avatar box (Figma inset) */
+  inset?: string;
+  /** extra stroke padding around the vector */
+  pad?: string;
+};
 
-function Img({ name }: { name: string }) {
-  return <FigmaImg name={name} className="absolute inset-0 size-full" />;
-}
+type AvatarDef = { mask: string; maskSize: string; box: string; layers: Layer[] };
 
-/** "before" = first home screen, "during" = in-semester Home (different outfit + head). */
-export function Avatar({ variant = "before" }: { variant?: "before" | "during" }) {
-  const layer = `${base} ${variant === "during" ? "inset-[0_1.39%_0_-1.39%]" : "inset-0"}`;
-  const outfit = variant === "during" ? "7a0e9" : "ccb5c";
-  const head = variant === "during" ? "15704" : "1ee29";
+const AVATARS = {
+  /* Home header (1501:1526 / 1501:1271) */
+  minji: {
+    mask: "a0110",
+    maskSize: "35.883px 35.882px",
+    box: "size-[36px]",
+    layers: [
+      { img: "d3743", inset: "68.85% 19.66% 0.13% 13.3%" },
+      { img: "7a0e9", inset: "68.88% 17.12% -14.83% 6.76%" },
+      { img: "15704", inset: "19.3% 27.57% 15.34% 29.67%" },
+      { img: "4b4f5", inset: "56.13% 38.53% 38.59% 53.67%", pad: "-1.37% -1.48% -2.19% -1.48%" },
+      { img: "94de6", inset: "37.43% 29.32% 52.06% 49.34%" },
+      { img: "c31b8" },
+      { img: "63f86", inset: "52.64% 46.59% 45.05% 46.2%" },
+      { img: "23d3e", inset: "52.61% 29.55% 45.01% 67.4%" },
+      { img: "cb08c", inset: "0 0.1% 0.06% 0.03%" },
+    ],
+  },
+  /* Family Space conversation (1501:3668) */
+  minjiChat: {
+    mask: "9cfbd",
+    maskSize: "25.879px 25.879px",
+    box: "size-[25.964px]",
+    layers: [
+      { img: "68976", inset: "68.85% 19.66% 0.13% 13.3%" },
+      { img: "bfc2e", inset: "68.88% 17.12% -14.83% 6.76%" },
+      { img: "de679", inset: "19.3% 27.57% 15.34% 29.67%" },
+      { img: "e87a8", inset: "56.13% 38.53% 38.59% 53.67%" },
+      { img: "29668", inset: "37.43% 29.32% 52.06% 49.34%" },
+      { img: "3c21c" },
+      { img: "88887", inset: "52.64% 46.59% 45.05% 46.2%" },
+      { img: "ad3b7", inset: "52.61% 29.55% 45.01% 67.4%" },
+      { img: "2a2f7", inset: "0 0.1% 0.06% 0.03%" },
+    ],
+  },
+  /* Mom (1501:3682) */
+  mom: {
+    mask: "4380e",
+    maskSize: "25.914px 25.914px",
+    box: "size-[26px]",
+    layers: [
+      { img: "ac8df", inset: "68.85% 19.66% 0.13% 13.3%" },
+      { img: "c426b", inset: "67.88% 11.16% -12.11% 4.56%" },
+      { img: "5a0c9", inset: "65.16% 36.53% 10.86% 29.42%" },
+      { img: "88066", inset: "19.3% 27.29% 15.34% 29.68%" },
+      { img: "c024c", inset: "56.14% 38.31% 40.47% 54.48%" },
+      { img: "b50bf", inset: "36.98% 28.93% 52.06% 49.14%" },
+      { img: "760b2", inset: "16.02% 22.89% 18.85% 11.4%" },
+      { img: "a56c3", inset: "40.78% 26.24% 46.63% 38.25%" },
+      { img: "21570", inset: "0 0.1% 0.06% 0.03%" },
+    ],
+  },
+} satisfies Record<string, AvatarDef>;
+
+export type AvatarName = keyof typeof AVATARS;
+
+export function Avatar({ who = "minji", className = "" }: { who?: AvatarName; className?: string }) {
+  const a: AvatarDef = AVATARS[who];
+  const mask: CSSProperties = {
+    maskImage: `url("/assets/${a.mask}.svg")`,
+    WebkitMaskImage: `url("/assets/${a.mask}.svg")`,
+    maskSize: a.maskSize,
+    WebkitMaskSize: a.maskSize,
+    maskRepeat: "no-repeat",
+    WebkitMaskRepeat: "no-repeat",
+    maskMode: "alpha",
+    maskComposite: "intersect",
+    maskClip: "no-clip",
+  };
   return (
-    <div className="relative size-[36px] shrink-0" aria-label="Minji">
-      <div className={layer} style={mask}>
-        <div className="absolute inset-[68.85%_19.66%_0.13%_13.3%]">
-          <Img name="d3743" />
-        </div>
-      </div>
-      <div className={layer} style={mask}>
-        <div className="absolute inset-[68.88%_17.12%_-14.83%_6.76%]">
-          <Img name={outfit} />
-        </div>
-      </div>
-      <div className={layer} style={mask}>
-        <div className="absolute inset-[19.3%_27.57%_15.34%_29.67%]">
-          <Img name={head} />
-        </div>
-      </div>
-      <div className={layer} style={mask}>
-        <div className="absolute inset-[56.13%_38.53%_38.59%_53.67%]">
-          <div className="absolute inset-[-1.37%_-1.48%_-2.19%_-1.48%]">
-            <Img name="4b4f5" />
+    <div className={`relative shrink-0 ${a.box} ${className}`} aria-label={who === "mom" ? "Mom" : "Minji"}>
+      {a.layers.map((l) => (
+        <div key={l.img} className="absolute inset-0" style={mask}>
+          <div className="absolute" style={{ inset: l.inset ?? "0" }}>
+            <div className="absolute" style={{ inset: l.pad ?? "0" }}>
+              <FigmaImg name={l.img} className="size-full" />
+            </div>
           </div>
         </div>
-      </div>
-      <div className={layer} style={mask}>
-        <div className="absolute inset-[37.43%_29.32%_52.06%_49.34%]">
-          <Img name="94de6" />
-        </div>
-      </div>
-      <div className={layer} style={mask}>
-        <Img name="a7cfd" />
-      </div>
-      <div className={layer} style={mask}>
-        <div className="absolute inset-[52.64%_46.59%_45.05%_46.2%]">
-          <Img name="63f86" />
-        </div>
-        <div className="absolute inset-[52.61%_29.55%_45.01%_67.4%]">
-          <Img name="23d3e" />
-        </div>
-      </div>
-      <div className={layer} style={mask}>
-        <div className="absolute inset-[0_0.1%_0.06%_0.03%]">
-          <Img name="cb08c" />
-        </div>
-      </div>
+      ))}
     </div>
   );
 }

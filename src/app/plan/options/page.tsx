@@ -6,7 +6,7 @@ import { Icon } from "@/components/FigmaImg";
 import { FooterButton, Screen, StepHeader, TopBar } from "@/components/shell";
 import { computePlans, useApp, usd } from "@/lib/store";
 
-/* Figma 1491:966 — "decide your plan" (step 5) */
+/* Figma 1501:2282 — "onboarding 5": decide your plan */
 
 export default function OptionsPage() {
   const router = useRouter();
@@ -17,26 +17,17 @@ export default function OptionsPage() {
   return (
     <Screen>
       <TopBar back={true} />
-      <div className="flex w-full flex-col gap-[40px]">
-        <StepHeader
-          step={5}
-          progress={231}
-          title={
-            <span className="flex items-center justify-between gap-[10px]">
-              Decide your plan
-              <Link
-                href="/plan/build"
-                aria-label="Adjust inputs"
-                className="flex rounded-[16px] border border-mint bg-mint-soft p-[4px]"
-              >
-                <Icon name="a7c86" className="size-[14px]" />
-              </Link>
-            </span>
-          }
-          subtitle="Choose the balance that feels right for you."
-        />
+      <div className="flex w-full flex-col gap-[24px]">
+        <StepHeader step={5} title="Decide your plan" subtitle="Choose the balance that feels right for you." />
 
-        <div className="flex w-full flex-col items-center gap-[24px] py-[24px]">
+        <div className="flex w-full flex-col gap-[2px]">
+          <Link href="/plan/build" className="flex items-center justify-end gap-[10px] px-[24px]">
+            <span className="text-[10px] leading-[13.5px] text-black">Make your own plan</span>
+            <span className="flex rounded-[16px] border border-mint bg-mint-soft p-[4px]">
+              <Icon name="a7c86" className="size-[14px]" />
+            </span>
+          </Link>
+        <div className="flex w-full flex-col items-center gap-[24px] px-[24px] py-[24px]">
           {plans.map((p, i) => {
             const selected = p.id === plan;
             const tag = p.id === "balanced" ? "recommended" : `option ${i + 1}`;
@@ -46,7 +37,7 @@ export default function OptionsPage() {
                 key={p.id}
                 onClick={() => setPlan(p.id)}
                 aria-pressed={selected}
-                className={`flex w-[353px] flex-col gap-[12px] overflow-clip rounded-[5px] border-[1.397px] p-[12px] text-left transition-colors ${
+                className={`flex w-full flex-col gap-[12px] overflow-clip rounded-[10px] border-[1.397px] p-[12px] text-left transition-colors ${
                   selected ? "border-[#79ff5d] bg-mint" : "border-peri bg-peri-soft"
                 }`}
               >
@@ -117,6 +108,7 @@ export default function OptionsPage() {
             );
           })}
         </div>
+        </div>
       </div>
       <FooterButton
         onClick={() => {
@@ -124,7 +116,7 @@ export default function OptionsPage() {
           router.push("/family");
         }}
       >
-        Continue with {chosen.name}
+        Send {chosen.name}
       </FooterButton>
     </Screen>
   );

@@ -5,13 +5,13 @@ import { useState, type ReactNode } from "react";
 import { Icon } from "@/components/FigmaImg";
 import { FooterButton, Screen, TopBar } from "@/components/shell";
 import { PageTitle } from "@/components/ui";
-import { usd } from "@/lib/store";
+import { useApp, usd } from "@/lib/store";
 
-/* Figma 1491:1344 — "Add Financial Event" (shared family view frame inside the journey variant) */
+/* Figma 1501:3492 — "add financial event" */
 
 const CURRENT_ENDING = 752;
 const field =
-  "min-h-[48px] w-full rounded-[12px] border-[0.625px] border-[#e5e5e5] bg-white px-[13px] font-inter text-[13px] text-ink-2 outline-none focus:border-peri";
+  "min-h-[48px] w-full rounded-[10px] border-[0.625px] border-[#e5e5e5] bg-white px-[13px] font-inter text-[13px] text-ink-2 outline-none focus:border-peri";
 
 export default function NewEventPage() {
   const router = useRouter();
@@ -23,6 +23,7 @@ export default function NewEventPage() {
   const [essential, setEssential] = useState(true);
   const [notes, setNotes] = useState("Repair needed for coursework. Cost is still an estimate.");
 
+  const { addJourneyEvent } = useApp();
   const income = category === "Income";
   const delta = income ? amount : -amount;
 
@@ -32,9 +33,9 @@ export default function NewEventPage() {
       <div className="flex w-full flex-col gap-[24px]">
         <PageTitle>Add Financial Event</PageTitle>
 
-        <div className="flex w-full flex-col gap-[9px] px-[20px]">
+        <div className="flex w-full flex-col gap-[9px] px-[24px]">
           <Label text="Event name">
-            <input value={name} onChange={(e) => setName(e.target.value)} className="min-h-[42.88px] w-full rounded-[10.721px] border-[0.558px] border-[#e5e5e5] bg-white px-[11.614px] font-inter text-[11.614px] text-ink-2 outline-none focus:border-peri" />
+            <input value={name} onChange={(e) => setName(e.target.value)} className="min-h-[42.88px] w-full rounded-[10px] border-[0.558px] border-[#e5e5e5] bg-white px-[11.614px] font-inter text-[11.614px] text-ink-2 outline-none focus:border-peri" />
           </Label>
 
           <Label text="Category">
@@ -63,7 +64,7 @@ export default function NewEventPage() {
             <Select value={status} onChange={setStatus} options={["Planned", "Completed"]} />
           </Label>
 
-          <label className="flex h-[47px] min-h-[47px] cursor-pointer items-center justify-between rounded-[11px] border-[0.625px] border-[#e5e5e5] bg-white px-[13px]">
+          <label className="flex h-[47px] min-h-[47px] cursor-pointer items-center justify-between rounded-[10px] border-[0.625px] border-[#e5e5e5] bg-white px-[13px]">
             <span className="font-inter text-[10px] leading-[15px] text-ink-2">Essential expense</span>
             <input type="checkbox" checked={essential} onChange={(e) => setEssential(e.target.checked)} className="peer sr-only" />
             <span
@@ -85,7 +86,7 @@ export default function NewEventPage() {
           </Label>
         </div>
 
-        <div className="mx-[22px] flex flex-col rounded-[13.249px] bg-peri p-[14.132px]">
+        <div className="mx-[24px] flex flex-col rounded-[10px] bg-peri p-[14.132px]">
           <p className="text-[8.832px] leading-[11.924px] font-extrabold tracking-[0.8832px] text-black uppercase">
             Projected impact
           </p>
@@ -107,7 +108,13 @@ export default function NewEventPage() {
           </p>
         </div>
       </div>
-      <FooterButton onClick={() => router.push("/journey")} disabled={!name.trim()}>
+      <FooterButton
+        onClick={() => {
+          addJourneyEvent({ name: name.trim(), category, amount, income });
+          router.push("/journey");
+        }}
+        disabled={!name.trim()}
+      >
         Add to my journey
       </FooterButton>
     </Screen>
@@ -117,7 +124,7 @@ export default function NewEventPage() {
 function Label({ text, children }: { text: string; children: ReactNode }) {
   return (
     <label className="flex flex-col gap-[7px]">
-      <span className="text-[11px] leading-[16.5px] font-[680] text-[#555]">{text}</span>
+      <span className="text-[11px] leading-[16.5px] font-[680] whitespace-nowrap text-[#555]">{text}</span>
       {children}
     </label>
   );
@@ -129,14 +136,14 @@ function Select({ value, onChange, options }: { value: string; onChange: (v: str
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={`${field} cursor-pointer appearance-none pr-[36px] pl-[17px]`}
+        className={`${field} cursor-pointer appearance-none pr-[36px] pl-[17px] text-[13px]`}
       >
         {options.map((o) => (
           <option key={o}>{o}</option>
         ))}
       </select>
-      <span className="pointer-events-none absolute top-0 right-0 flex h-full w-[20px] items-center justify-center pr-[4px]">
-        <Icon name="822c8" className="h-[6px] w-[10px]" />
+      <span className="pointer-events-none absolute top-0 right-0 flex h-full w-[20px] items-center justify-center">
+        <Icon name="8781c" className="h-[6px] w-[10px]" inset="inset-[0_0_-12.5%_-117.5%]" />
       </span>
     </div>
   );
